@@ -1,0 +1,30 @@
+.header{
+    display: flex;
+    flex-direction: row;
+}
+
+.header-dashboard{
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    margin-right: 300px;
+}
+
+li{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-right: 50px;
+}
+
+.header-welcome{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+hr{
+    height: 2px;
+    background-color: black;
+}
