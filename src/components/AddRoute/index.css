@@ -22,6 +22,10 @@ h2{
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+p{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
 .details-input{
     width: 300px;
     padding: 8px;
@@ -61,6 +65,14 @@ select{
     justify-content: space-around;
     align-items: center;
 }
+
+.search-cross{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
 .search-button{
     height: 32px;
     width: 120px;
@@ -75,6 +87,15 @@ select{
     width: 120px;
     color: black;
     background-color: #ffffff;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-button:active{
+    height: 32px;
+    width: 120px;
+    color: #ffffff;
+    background-color: black;
     outline: none;
     cursor: pointer;
 }
@@ -94,6 +115,16 @@ select{
     width: 200px;
     color: #ffffff;
     background-color: black;
+    outline: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.button:active{
+    height: 32px;
+    width: 200px;
+    color: black;
+    background-color: #ffffff;
     outline: none;
     cursor: pointer;
     margin-right: 10px;
@@ -154,7 +185,6 @@ td {
   }
 
   .cross-btn{
-    margin-left: 98%;
     background-color: transparent;
     border: none;
     cursor: pointer;

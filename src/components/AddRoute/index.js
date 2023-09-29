@@ -6,6 +6,7 @@ import Header from '../Header';
 
 const AddRoute = () => {
   const [state, setState] = useState({
+    id:0,
     code: '',
     name: '',
     fromDate: '',
@@ -16,7 +17,6 @@ const AddRoute = () => {
     isModalOpen: false,
     isVisitFrequency: false,
     warehouseList: [],
-    
     userList: [],
     storeList: [],
     selectedCustomers: [],
@@ -24,13 +24,17 @@ const AddRoute = () => {
     filteredSelectedCust: [],
     searchInput: '',
     filteredStoreList: [],
+    isActiveSun: false,
+    isActiveMon: false,
+    isActiveTue: false,
+    isActiveWed: false,
+    isActiveThu: false,
+    isActiveFri: false,
+    isActiveSat: false,
   });
 
   const location = useLocation();
-  console.log(location.state)
-  const itemToEdit = location.state ? location.state.itemToEdit : null;
-  console.log(itemToEdit)
-
+  const itemToEdit = location.state && location.state.mainRoute;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,10 +73,14 @@ const AddRoute = () => {
             storeList: storeData,
             filteredStoreList: storeData,
           }));
+        } else {
+            console.error('Failed to fetch store data');
+          }
 
           if (itemToEdit) {
             setState((prevState) => ({
               ...prevState,
+              id: itemToEdit.Id,
               code: itemToEdit.Code,
               name: itemToEdit.Name,
               fromDate: itemToEdit.FromDate,
@@ -82,9 +90,6 @@ const AddRoute = () => {
               userId: itemToEdit.UserId,
             }));
           }
-        } else {
-          console.error('Failed to fetch customer data');
-        }
       } catch (error) {
         console.error(error);
       }
@@ -117,23 +122,88 @@ const AddRoute = () => {
     setState({ ...state, userId: e.target.value });
   };
 
-  const onHandleRouteSave = async () => {
-    const { code, name, fromDate, toDate, isActive, warehouseId, userId } = state;
-    const routeDetails = { code, name, fromDate, toDate, isActive, warehouseId, userId };
-    const routeApiUrl = 'http://localhost:3001/routeList';
-    console.log(routeDetails);
-    const routeOptions = {
+  const onHandleSelectedCustomer = async () => {
+    const {selectedCustomers, code} = state
+
+    const selectedCustomersPostDetails = selectedCustomers.map((customer) => ({
+      customerCode: customer.Code,
+      customerName : customer.Name,
+      customerAddress : customer.Address
+    }));
+
+    const requestBody = {
+      routecode: code,
+      selectedCustomers: selectedCustomersPostDetails,
+    };
+
+    console.log(requestBody)
+
+    const selectedCustomersPostApiUrl = 'http://localhost:3001/selectedCustomers'
+    const selectedCustomersPostOptions = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(routeDetails),
+      body: JSON.stringify(requestBody)
     };
-    const response = await fetch(routeApiUrl, routeOptions);
-    console.log(response);
-    const data = await response.json();
-    console.log(data);
+    const selectedCustomersPostResponse = await fetch(selectedCustomersPostApiUrl, selectedCustomersPostOptions)
+    if (selectedCustomersPostResponse.ok) {
+      const selectedCustomersPostData = await selectedCustomersPostResponse.json();
+      console.log(selectedCustomersPostData);
+      setState((prevState) => ({ ...prevState, isModalOpen: !prevState.isModalOpen }));
+    } else {
+      console.error('Failed to save selected customer');
+    }
+  }
+
+  const onHandleRouteSave = async () => {
+    const { id, code, name, fromDate, toDate, isActive, warehouseId, userId, isActiveSun, isActiveMon, isActiveTue, isActiveWed, isActiveThu, isActiveFri, isActiveSat } = state;
+    const routeDetails = { code, name, fromDate, toDate, isActive, warehouseId, userId };
+    const routeApiUrl = 'http://localhost:3001/routeList';
+    const updateRouteApiUrl = `http://localhost:3001/routeList/${id}`;
+    const scheduleApiUrl = 'http://localhost:3001/schedule'
+    const scheduleDetails = {code, isActiveSun, isActiveMon, isActiveTue, isActiveWed, isActiveThu, isActiveFri, isActiveSat }
+    console.log(code, isActiveSun, isActiveMon, isActiveTue, isActiveWed, isActiveThu, isActiveFri, isActiveSat)
+
+    if (location.state?.mainRoute) { // Use optional chaining here
+      const routeOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(routeDetails)
+      };
+      console.log(routeOptions)
+      const response = await fetch(updateRouteApiUrl, routeOptions);
+      const data = await response.json();
+      console.log(data)
+    } else {
+      const routeOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(routeDetails)
+      };
+      const response = await fetch(routeApiUrl, routeOptions);
+      console.log(response);
+      const data = await response.json();
+      console.log(data);
+
+      const scheduleOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(scheduleDetails)
+      };
+      const scheduleResponse = await fetch(scheduleApiUrl, scheduleOptions);
+      console.log(scheduleResponse);
+      const scheduleData = await scheduleResponse.json();
+      console.log(scheduleData);
+    }
   };
+  
 
   const onHandleMultipleWeek = () => {
     setState((prevState) => ({ ...prevState, isVisitFrequency: !prevState.isVisitFrequency }));
@@ -146,6 +216,31 @@ const AddRoute = () => {
   const handleIsActiveChange = () => {
     setState((prevState) => ({ ...prevState, isActive: !prevState.isActive }));
   }
+
+  const handleIsActiveSun = () => {
+    setState((prevState) => ({ ...prevState, isActiveSun: !prevState.isActiveSun }));
+  }
+
+  const handleIsActiveMon = () => {
+    setState((prevState) => ({ ...prevState, isActiveMon: !prevState.isActiveMon }));
+  }
+
+  const handleIsActiveTue = () => {
+    setState((prevState) => ({ ...prevState, isActiveTue: !prevState.isActiveTue }));
+  }
+  const handleIsActiveWed = () => {
+    setState((prevState) => ({ ...prevState, isActiveWed: !prevState.isActiveWed }));
+  }
+  const handleIsActiveThu = () => {
+    setState((prevState) => ({ ...prevState, isActiveThu: !prevState.isActiveThu }));
+  }
+  const handleIsActiveFri = () => {
+    setState((prevState) => ({ ...prevState, isActiveFri: !prevState.isActiveFri }));
+  }
+  const handleIsActiveSat = () => {
+    setState((prevState) => ({ ...prevState, isActiveSat: !prevState.isActiveSat }));
+  }
+
   
 
   const handleCheckboxChange = (store) => {
@@ -208,8 +303,16 @@ const AddRoute = () => {
     toDate,
     warehouseId,
     userId,
-    isActive
+    isActive,
+    isActiveSun, 
+    isActiveMon, 
+    isActiveTue, 
+    isActiveWed, 
+    isActiveThu, 
+    isActiveFri, 
+    isActiveSat
   } = state;
+
 
   return (
     <div>
@@ -237,6 +340,7 @@ const AddRoute = () => {
                   onChange={onHandleCustId}
                   value={code}
                   autoComplete="off"
+                  required
                 />
                 <label htmlFor="name">Name*</label>
                 <input
@@ -247,6 +351,7 @@ const AddRoute = () => {
                   onChange={onHandleName}
                   value={name}
                   autoComplete="off"
+                  required
                 />
               </div>
               <br />
@@ -281,7 +386,6 @@ const AddRoute = () => {
                   </option>
                 ))}
               </select>
-
               <select id="usersList" onChange={onHandleUserId} value={userId}>
                 {userList.map((eachUser) => (
                   <option key={eachUser.Code} value={eachUser.Name}>
@@ -305,19 +409,19 @@ const AddRoute = () => {
             <br />
             {isVisitFrequency && (
               <div className="weekDays">
-                <input type="checkbox" id="Sunday" />
+                <input type="checkbox" id="Sunday" onChange={handleIsActiveSun} value={isActiveSun} />
                 <label htmlFor="Sunday">Sun</label>
-                <input type="checkbox" id="Monday" />
+                <input type="checkbox" id="Monday" onChange={handleIsActiveMon} value={isActiveMon}/>
                 <label htmlFor="Monday">Mon</label>
-                <input type="checkbox" id="Tuesday" />
+                <input type="checkbox" id="Tuesday" onChange={handleIsActiveTue} value={isActiveTue} />
                 <label htmlFor="Tuesday">Tue</label>
-                <input type="checkbox" id="Wednesday" />
+                <input type="checkbox" id="Wednesday" onChange={handleIsActiveWed} value={isActiveWed} />
                 <label htmlFor="Wednesday">Wed</label>
-                <input type="checkbox" id="Thursday" />
+                <input type="checkbox" id="Thursday" onChange={handleIsActiveThu} value={isActiveThu} />
                 <label htmlFor="Thursday">Thu</label>
-                <input type="checkbox" id="Friday" />
+                <input type="checkbox" id="Friday" onChange={handleIsActiveFri} value={isActiveFri} />
                 <label htmlFor="Friday">Fri</label>
-                <input type="checkbox" id="Saturday" />
+                <input type="checkbox" id="Saturday" onChange={handleIsActiveSat} value={isActiveSat} />
                 <label htmlFor="Saturday">Sat</label>
               </div>
             )}
@@ -355,11 +459,13 @@ const AddRoute = () => {
             {isModalOpen && (
               <div className="modal">
                 <div className="modal-content">
+                  <div className='search-cross'>
                   <input
                     type="search"
                     className="details-input"
                     onChange={onHandleSearchStore}
                     autoComplete="off"
+                    placeholder='Search here for Customers'
                   />
                   <button
                     className="cross-btn"
@@ -368,6 +474,7 @@ const AddRoute = () => {
                   >
                     <ImCross />
                   </button>
+                  </div>
                   <table>
                     <tr>
                       <th>Sequence</th>
@@ -393,7 +500,7 @@ const AddRoute = () => {
                   <button
                     className="search-button"
                     type="button"
-                    onClick={onHandleModal}
+                    onClick={onHandleSelectedCustomer}
                   >
                     Save
                   </button>
