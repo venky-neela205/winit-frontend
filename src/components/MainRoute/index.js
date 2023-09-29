@@ -45,7 +45,10 @@ const MainRoute = () => {
           [code]: data.count,
         }));
 
-        setData(data.data)
+        setData((prevData) => ({
+          ...prevData,
+          [code]: data.data,
+        }));
         // Process the data and update your component's state
         // You can handle the data as needed, for example, storing it in state or displaying it directly.
       } else {
@@ -100,7 +103,7 @@ const MainRoute = () => {
                 <td>
                   <button
                     onClick={() => {
-                      navigate('/', { replace: true, state: { mainRoute } });
+                      navigate('/', { replace: true, state: { mainRoute, data } });
                     }}
                     className="edit-btn"
                     type="button"

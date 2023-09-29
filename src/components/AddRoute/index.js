@@ -35,6 +35,8 @@ const AddRoute = () => {
 
   const location = useLocation();
   const itemToEdit = location.state && location.state.mainRoute;
+  const customerData = location.state && location.state.data;
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,6 +79,25 @@ const AddRoute = () => {
             console.error('Failed to fetch store data');
           }
 
+          if (customerData) {
+            const { code } = state;
+            console.log(code);
+            console.log(customerData);
+          
+            // Iterate over the customerData object keys
+            Object.keys(customerData).forEach(customerCode => {
+              if (customerCode === code) {
+                setState((prevState) => ({
+                  ...prevState,
+                  selectedCustomers: customerData[customerCode],
+                }));
+                console.log("Matching code found:");
+                console.log(customerData[customerCode]);
+              }
+            });
+          }
+          
+
           if (itemToEdit) {
             setState((prevState) => ({
               ...prevState,
@@ -96,7 +117,7 @@ const AddRoute = () => {
     };
 
     fetchData();
-  }, [itemToEdit]);
+  }, [itemToEdit, customerData, state]);
 
   const onHandleCustId = (e) => {
     setState({ ...state, code: e.target.value });
