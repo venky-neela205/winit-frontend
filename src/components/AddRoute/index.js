@@ -79,25 +79,6 @@ const AddRoute = () => {
             console.error('Failed to fetch store data');
           }
 
-          if (customerData) {
-            const { code } = state;
-            console.log(code);
-            console.log(customerData);
-          
-            // Iterate over the customerData object keys
-            Object.keys(customerData).forEach(customerCode => {
-              if (customerCode === code) {
-                setState((prevState) => ({
-                  ...prevState,
-                  selectedCustomers: customerData[customerCode],
-                }));
-                console.log("Matching code found:");
-                console.log(customerData[customerCode]);
-              }
-            });
-          }
-          
-
           if (itemToEdit) {
             setState((prevState) => ({
               ...prevState,
@@ -110,6 +91,19 @@ const AddRoute = () => {
               warehouseId: itemToEdit.WarehouseId,
               userId: itemToEdit.UserId,
             }));
+
+            // Iterate over the customerData object keys
+            Object.keys(customerData).forEach(customerCode => {
+              if (customerCode === itemToEdit.Code) {
+                setState((prevState) => ({
+                  ...prevState,
+                  selectedCustomers: customerData[customerCode],
+                }));
+                console.log("Matching code found:");
+                console.log(customerData[customerCode]);
+              }
+            });
+            
           }
       } catch (error) {
         console.error(error);
@@ -117,7 +111,7 @@ const AddRoute = () => {
     };
 
     fetchData();
-  }, [itemToEdit, customerData, state]);
+  }, [itemToEdit, customerData]);
 
   const onHandleCustId = (e) => {
     setState({ ...state, code: e.target.value });
@@ -504,7 +498,7 @@ const AddRoute = () => {
                       <th>Address</th>
                     </tr>
                     {filteredStoreList.map((store) => (
-                      <tr key={store.Code}>
+                      <tr key={store.id}>
                         <td>
                           <input
                             type="checkbox"
@@ -540,7 +534,7 @@ const AddRoute = () => {
               <th>Address</th>
             </tr>
             {selectedCustomers.map((customer) => (
-              <tr key={customer.Code}>
+              <tr key={customer.Id}>
                 <td>
                   <input type="checkbox" id={customer.Code} />
                 </td>
